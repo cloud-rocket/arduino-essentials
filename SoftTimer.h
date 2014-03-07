@@ -10,9 +10,10 @@
 
 #include "Event.h"
 
-class TimerListener : public EventListener {
+class TimerListener : public Event, public EventListener {
 public:
 	TimerListener() : lastTimestamp(0) {}
+
 private:
 	unsigned long timerPeriod;
 	unsigned long lastTimestamp;
@@ -20,12 +21,18 @@ private:
 	friend class SoftTimer;
 };
 
-class SoftTimer : public Event {
+extern class SoftTimer : public Event, public EventListener {
+
+public:
+	void init();
+	void Attach(TimerListener* listener, unsigned long timerPeriod);
+
 
 protected:
+	void onEvent(Event* o);
 	void Notify();
 
-};
+} TIMER;
 
 
 #endif /* SOFTTIMER_H_ */
