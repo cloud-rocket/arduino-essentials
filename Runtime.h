@@ -10,11 +10,15 @@
 
 #include "Event.h"
 
+const extern uint8_t EVENT_TYPE_RUNTIME;
+
 extern class Runtime : public Event {
 
 public:
 
 	void exec();
+	
+	uint8_t type() {return EVENT_TYPE_RUNTIME;}
 
 } RUNTIME;
 

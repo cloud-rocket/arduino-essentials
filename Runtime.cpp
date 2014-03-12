@@ -10,12 +10,13 @@
 
 #include <Arduino.h>
 
+const uint8_t EVENT_TYPE_RUNTIME = 10;
 
 Runtime RUNTIME;
 
 void Runtime::exec() {
 	while (1) {
-		Notify();
+		Notify(EVENT_TYPE_RUNTIME);
 	}
 }
 

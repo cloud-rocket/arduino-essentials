@@ -21,16 +21,20 @@ private:
 	friend class SoftTimer;
 };
 
+const extern uint8_t EVENT_TYPE_SOFT_TIMER;
+
 extern class SoftTimer : public Event, public EventListener {
 
 public:
 	void init();
 	void Attach(TimerListener* listener, unsigned long timerPeriod);
 
+	uint8_t type() {return EVENT_TYPE_SOFT_TIMER;}
+
 
 protected:
-	void onEvent(Event* o);
-	void Notify();
+	void onEvent(Event* o, uint16_t eventType = 0, uint32_t param1 = 0, uint32_t param2 = 0);
+	void Notify(uint16_t type);
 
 } TIMER;
 

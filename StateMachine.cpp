@@ -7,6 +7,7 @@
 
 #include "StateMachine.h"
 
+
 void StateMachineMode::init(StateMachine& stateMachine) {
 	stateMachine.addMode(*this);
 	addStates(stateMachine);
@@ -14,7 +15,7 @@ void StateMachineMode::init(StateMachine& stateMachine) {
 
 
 
-StateMachine::StateMachine() : _currMode(0), _totalModes(0) {
+StateMachine::StateMachine() : _currMode(UNDEFINED_MODESTATE), _totalModes(0) {
 
 	for (uint8_t i = 0; i< SM_TOTAL_MODES; i++) {
 		_totalStates[i] = 0;
@@ -28,23 +29,27 @@ StateMachine::StateMachine() : _currMode(0), _totalModes(0) {
 //	// TODO Auto-generated destructor stub
 //}
 
-void StateMachine::begin() {
-
-}
-
 
 uint8_t StateMachine::addMode(StateMachineMode& mode) {
 
 	// Store Mode object
 	_modesMap[_totalModes] = &mode;
 
+	Serial.print("Mode added - ");
+	Serial.println(_totalModes);
+
 	return _totalModes++;
 }
 
 uint8_t StateMachine::addState(StateMachineMode::STATE_FUNCTION_STATIC_T state) {
-	_statesMap[_totalModes][_totalStates[_totalModes]] = state;
+	_statesMap[_totalModes-1][_totalStates[_totalModes-1]] = state;
 
-	return _totalStates[_totalModes]++;
+	Serial.print("State added - ");
+	Serial.print(_totalStates[_totalModes-1]);
+	Serial.print("  mode - ");
+	Serial.println(_totalModes-1);
+
+	return _totalStates[_totalModes-1]++;
 }
 
 
@@ -56,10 +61,15 @@ bool StateMachine::setMode(StateMachineMode& mode, uint8_t state) {
 		}
 	}
 
+Serial.println("HERE");
+
 	return false;
 }
 
 bool StateMachine::setMode(uint8_t mode, uint8_t state) {
+
+	Serial.print("Setting mode to - ");
+	Serial.println(mode);
 
 	// Check valid input
 	if (mode >= _totalModes || (state > _totalStates[mode] && state != UNDEFINED_MODESTATE)) {
@@ -72,7 +82,7 @@ bool StateMachine::setMode(uint8_t mode, uint8_t state) {
 	}
 
 	// If previously set - call destructor
-	if (_modesMap[_currMode]) {
+	if (_currMode != UNDEFINED_MODESTATE) {
 		_modesMap[_currMode]->end();
 	}
 
@@ -89,8 +99,9 @@ bool StateMachine::setMode(uint8_t mode, uint8_t state) {
 bool StateMachine::setState(uint8_t state) {
 
 
+
 	// Valid input check
-	if (state > _totalStates[_currMode] && state != UNDEFINED_MODESTATE) {
+	if (_currMode == UNDEFINED_MODESTATE || (state > _totalStates[_currMode] && state != UNDEFINED_MODESTATE)) {
 		return false;
 	}
 
@@ -100,7 +111,11 @@ bool StateMachine::setState(uint8_t state) {
 }
 
 
-void StateMachine::onEvent(uint16_t eventType, uint32_t param1, uint32_t param2) {
+void StateMachine::onEvent(Event* o, uint16_t eventType, uint32_t param1, uint32_t param2) {
+
+	if (_currMode == UNDEFINED_MODESTATE) {
+		return;
+	}
 
 	StateMachineMode::STATE_FUNCTION_STATIC_T currentHandler = _statesMap[_currMode][_currState[_currMode]];
 

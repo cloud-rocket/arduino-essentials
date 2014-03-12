@@ -9,6 +9,7 @@
 #define STATEMACHINE_H_
 
 #include <stdint.h>
+#include "Event.h"
 
 enum SM_COMMAND {
 	SM_DO_NOTHING,
@@ -34,21 +35,30 @@ const uint8_t UNDEFINED_MODESTATE = 255;
 #define ADD_STATE(STATE_CONTAINER, STATE_NAME) \
 		STATE_CONTAINER.addState((StateMachineMode::STATE_FUNCTION_STATIC_T)stat_##STATE_NAME);
 
+#define BEGIN_STATES_REGISTRATION \
+	protected: \
+	void addStates(StateMachine& stateMachine) {
+
+#define END_STATES_REGISTRATION \
+	}
+
 class StateMachine;
+
+// State Machine "Mode" (Higher level state) datatype
 
 class StateMachineMode {
 public:
 	void init(StateMachine& stateMachine);
 
 	// Default begin/end implementations for each mode
-	virtual SM_COMMAND begin() {return SM_DO_NOTHING; };
-	static SM_COMMAND stat_begin(StateMachineMode* container) {
-		return container->begin();
+	virtual void begin() {}
+	static void stat_begin(StateMachineMode* container) {
+		container->begin();
 	}
 
-	virtual SM_COMMAND end() {return SM_DO_NOTHING; }
-	static SM_COMMAND stat_end(StateMachineMode* container) {
-		return container->end();
+	virtual void end() { }
+	static void stat_end(StateMachineMode* container) {
+		container->end();
 	}
 
 	// State function prototypes
@@ -63,12 +73,13 @@ public:
 
 	virtual SM_COMMAND stub(uint16_t eventType, uint32_t param1, uint32_t param2) {	return SM_DO_NOTHING;}
 
-
 protected:
 	friend class StateMachine;
 };
 
-class StateMachine {
+// State Machine engine
+
+class StateMachine : public EventListener {
 public:
 	StateMachine();
 	//virtual ~StateMachine();
@@ -79,15 +90,13 @@ public:
 	// Add next state to the current mode
 	uint8_t addState(StateMachineMode::STATE_FUNCTION_STATIC_T state);
 
-	bool setMode(StateMachineMode& mode, uint8_t state = UNDEFINED_MODESTATE);
-	bool setMode(uint8_t mode, uint8_t state = UNDEFINED_MODESTATE);
+	bool setMode(StateMachineMode& mode, uint8_t state = 0);
+	bool setMode(uint8_t mode, uint8_t state = 0);
 	bool setState(uint8_t state);
 
-	// Start state machine execution - call current mode/state init functions
-	void begin();
 
 	// Event function is delivered to the current mode/state
-	void onEvent(uint16_t eventType, uint32_t param1, uint32_t param2);
+	void onEvent(Event* o, uint16_t eventType, uint32_t param1, uint32_t param2);
 
 
 private:

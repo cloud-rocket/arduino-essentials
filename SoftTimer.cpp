@@ -11,6 +11,9 @@
 
 #include <Arduino.h>
 
+const uint8_t EVENT_TYPE_SOFT_TIMER = 20;
+
+
 SoftTimer TIMER;
 
 void SoftTimer::init() {
@@ -25,7 +28,7 @@ void SoftTimer::Attach(TimerListener* listener, unsigned long timerPeriod) {
 }
 
 
-void SoftTimer::Notify() {
+void SoftTimer::Notify(uint16_t type) {
 
 	if (!_listeners.isEmpty()) {
 		for (_listeners.first(); !_listeners.isDone(); _listeners.next()) {
@@ -38,7 +41,7 @@ void SoftTimer::Notify() {
 
 			if (!node->lastTimestamp || now > node->lastTimestamp + node->timerPeriod) {
 
-				node->onEvent(this);
+				node->onEvent(this, type);
 				node->lastTimestamp = now;
 
 				//DEBUG_PRINT(DEBUG_INFO,"Now=");
@@ -48,6 +51,6 @@ void SoftTimer::Notify() {
 	}
 }
 
-void SoftTimer::onEvent(Event* o) {
-	Notify();
+void SoftTimer::onEvent(Event* o, uint16_t eventType, uint32_t param1, uint32_t param2) {
+	Notify(EVENT_TYPE_SOFT_TIMER);
 }

@@ -44,13 +44,13 @@ void Event::Detach(EventListener* listener) {
 
 
 
-void Event::Notify() {
+void Event::Notify(uint16_t type) {
 
 	if (!_listeners.isEmpty()) {
 
 		for (_listeners.first(); !_listeners.isDone(); _listeners.next()) {
 
-			_listeners.currentItem()->onEvent(this);
+			_listeners.currentItem()->onEvent(this, type);
 
 		}
 	}
