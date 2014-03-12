@@ -11,6 +11,9 @@
 
 #include <Arduino.h>
 
+const uint8_t EVENT_TYPE_DIGITAL_INPUT = 30;
+
+
 DigitalInputEvent::DigitalInputEvent(): _lastValue(LOW) {
 
 
@@ -33,7 +36,7 @@ void DigitalInputEvent::init(uint8_t pin) {
 }
 
 
-void DigitalInputEvent::onEvent(Event* o) {
+void DigitalInputEvent::onEvent(Event* o, uint16_t eventType, uint32_t param1, uint32_t param2) {
 
 	uint8_t val = (uint8_t) digitalRead(_pin);
 

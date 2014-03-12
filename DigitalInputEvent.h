@@ -12,6 +12,9 @@
 
 class DigitalInputEvent;
 
+
+const extern uint8_t EVENT_TYPE_DIGITAL_INPUT;
+
 class DigitalInputListener : public EventListener {
 protected:
 	virtual void onRising(DigitalInputEvent* o) = 0;
@@ -31,9 +34,11 @@ public:
 	virtual ~DigitalInputEvent();
 
 	void init(uint8_t pin);
+	
+	uint8_t type() {return EVENT_TYPE_DIGITAL_INPUT;}
 
 protected:
-	void onEvent(Event* o);
+	void onEvent(Event* o, uint16_t eventType = 0, uint32_t param1 = 0, uint32_t param2 = 0);
 
 private:
 	uint8_t _pin;
